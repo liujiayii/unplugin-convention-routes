@@ -165,7 +165,7 @@
     "react-router": "^6.28.0",
     "rollup": "^4.25.0",
     "solid-js": "^1.9.3",
-    "tsup": "^8.2.4",
+    "tsup": "^8.3.5",
     "typescript": "^5.5.4",
     "vite": "^5.4.11",
     "vitest": "^2.0.5",
