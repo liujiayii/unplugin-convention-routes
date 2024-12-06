@@ -134,7 +134,7 @@
   "dependencies": {
     "@types/debug": "^4.1.12",
     "chokidar": "^4.0.1",
-    "debug": "^4.3.7",
+    "debug": "^4.4.0",
     "dequal": "^2.0.3",
     "extract-comments": "^1.1.0",
     "fast-glob": "^3.3.2",
