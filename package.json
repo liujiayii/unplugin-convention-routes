@@ -141,7 +141,7 @@
     "json5": "^2.2.3",
     "local-pkg": "^0.5.1",
     "picocolors": "^1.1.1",
-    "unplugin": "^2.1.0",
+    "unplugin": "^2.1.2",
     "yaml": "^2.6.1"
   },
   "devDependencies": {
