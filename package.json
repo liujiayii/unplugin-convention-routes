@@ -154,7 +154,7 @@
     "@types/node": "^22.10.5",
     "@vitest/ui": "^2.1.8",
     "@vue/compiler-sfc": "^3.5.13",
-    "bumpp": "^9.9.2",
+    "bumpp": "^9.9.3",
     "chalk": "^5.4.1",
     "eslint": "^9.17.0",
     "esno": "^4.8.0",
