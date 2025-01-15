@@ -55,8 +55,8 @@ importers:
         specifier: ^3.15.1
         version: 3.15.1
       '@solidjs/router':
-        specifier: ^0.15.2
-        version: 0.15.2(solid-js@1.9.4)
+        specifier: ^0.15.3
+        version: 0.15.3(solid-js@1.9.4)
       '@types/glob-to-regexp':
         specifier: ^0.4.4
         version: 0.4.4
@@ -1600,8 +1600,8 @@ packages:
     peerDependencies:
       solid-js: ^1.8.6
 
-  '@solidjs/router@0.15.2':
-    resolution: {integrity: sha512-UWtliRvOnjfYMONQcTGwtf6BEud5QlF0oHC5L+kcSGYn0jARH5KzC3+3LLZ0al7oQo/5Rc50ssMswPuAuxFvAA==}
+  '@solidjs/router@0.15.3':
+    resolution: {integrity: sha512-iEbW8UKok2Oio7o6Y4VTzLj+KFCmQPGEpm1fS3xixwFBdclFVBvaQVeibl1jys4cujfAK5Kn6+uG2uBm3lxOMw==}
     peerDependencies:
       solid-js: ^1.8.6
 
@@ -5399,7 +5399,7 @@ snapshots:
     dependencies:
       solid-js: 1.9.3
 
-  '@solidjs/router@0.15.2(solid-js@1.9.4)':
+  '@solidjs/router@0.15.3(solid-js@1.9.4)':
     dependencies:
       solid-js: 1.9.4
 
