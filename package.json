@@ -171,7 +171,7 @@
     "vitest": "^3.0.9",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "webpack": "^5.97.1"
+    "webpack": "^5.98.0"
   },
   "pnpm": {
     "peerDependencyRules": {
