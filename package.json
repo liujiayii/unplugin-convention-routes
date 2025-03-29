@@ -142,7 +142,7 @@
     "local-pkg": "^1.1.1",
     "picocolors": "^1.1.1",
     "unplugin": "^2.2.2",
-    "yaml": "^2.7.0"
+    "yaml": "^2.7.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.8.0",
