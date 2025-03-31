@@ -152,7 +152,7 @@
     "@solidjs/router": "^0.15.3",
     "@types/glob-to-regexp": "^0.4.4",
     "@types/node": "^22.13.14",
-    "@vitest/ui": "^3.0.9",
+    "@vitest/ui": "^3.1.1",
     "@vue/compiler-sfc": "^3.5.13",
     "bumpp": "^10.1.0",
     "chalk": "^5.4.1",
@@ -168,7 +168,7 @@
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.3",
-    "vitest": "^3.0.9",
+    "vitest": "^3.1.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "webpack": "^5.98.0"
