@@ -145,7 +145,7 @@
     "yaml": "^2.7.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.8.0",
+    "@antfu/eslint-config": "^4.11.0",
     "@antfu/utils": "^9.2.0",
     "@nuxt/kit": "^3.16.2",
     "@nuxt/schema": "^3.16.2",
