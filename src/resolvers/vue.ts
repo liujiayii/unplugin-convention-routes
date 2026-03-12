@@ -12,12 +12,19 @@ export interface VueRoute {
 }
 
 /**
+ * 正则表达式特殊字符匹配模式
+ * 移到模块作用域以避免每次调用重新编译
+ */
+const ESCAPE_REGEXP = /[.*+?^${}()|[\]\\/:]/g
+
+/**
  * 转义正则表达式中的特殊字符
+ * 包括 Windows 路径中的特殊字符（如 / 和 :）
  * @param str - 待转义的字符串
  * @returns 转义后的字符串
  */
 function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  return str.replace(ESCAPE_REGEXP, "\\$&")
 }
 
 /**
@@ -47,20 +54,25 @@ Object.entries(${contextVar}).forEach(([path, module]) => {
 
   let routePath = path
     .replace(/${escapedDir}/, '')
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(vue|ts|js)$/, '')
-    .replace(/\\/index$/, '')
-    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) => 
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
+    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
       isCatchAll ? \`:\${name}(.*)*\` : \`:\${name}\`
     )
     .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
     .replace(/\\$$/, '(.*)*') // Remix 风格: $ -> catch-all
     ${options.caseSensitive ? "" : ".toLowerCase()"}
-  
-  routePath = '${basePath}' + routePath || '/'
-  
+
+  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
+
   const name = path
     .replace(/${escapedDir}/, '')
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(vue|ts|js)$/, '')
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
     .replace(/\\//g, '${options.routeNameSeparator}')
     .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, '$2') // Next.js 风格
     .replace(/\\$(.+)/g, '$1') // Remix 风格
@@ -100,9 +112,9 @@ export function generateVueRspackCode(options: ResolvedOptions): string {
     // 生成路由扫描和处理代码
     // 注意：Rspack 的 webpackContext 使用绝对路径
     contextBlocks.push(`
-const ${contextVar} = import.meta.webpackContext('${pattern.path}', { 
-  recursive: ${pattern.recursive}, 
-  regExp: /${pattern.regExp}$/ 
+const ${contextVar} = import.meta.webpackContext('${pattern.path}', {
+  recursive: ${pattern.recursive},
+  regExp: /${pattern.regExp}$/
 })
 ${contextVar}.keys().forEach((key) => {
   // 忽略 __xxx 格式的文件/目录（Remix 风格）
@@ -112,20 +124,27 @@ ${contextVar}.keys().forEach((key) => {
 
   let routePath = key
     .replace(/${escapedDir}/, '')
+    .replace(/^\\.\\//, '') // 移除开头的 ./
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(vue|ts|js)$/, '')
-    .replace(/\\/index$/, '')
-    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) => 
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
+    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
       isCatchAll ? \`:\${name}(.*)*\` : \`:\${name}\`
     )
     .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
     .replace(/\\$$/, '(.*)*') // Remix 风格: $ -> catch-all
     ${options.caseSensitive ? "" : ".toLowerCase()"}
-  
-  routePath = '${basePath}' + routePath || '/'
-  
+
+  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
+
   const name = key
     .replace(/${escapedDir}/, '')
+    .replace(/^\\.\\//, '') // 移除开头的 ./
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(vue|ts|js)$/, '')
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
     .replace(/\\//g, '${options.routeNameSeparator}')
     .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, '$2') // Next.js 风格
     .replace(/\\$(.+)/g, '$1') // Remix 风格

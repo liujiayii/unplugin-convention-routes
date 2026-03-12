@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://www.npmjs.org/package/unplugin-convention-routes">
-    <img src="https://img.shields.io/npm/v/unplugin-convention-routes.svg">
+    <img src="https://img.shields.io/npm/v/unplugin-convention-routes.svg" alt="npm version">
   </a>
   <a href="https://npmcharts.com/compare/unplugin-convention-routes?minimal=true">
-    <img src="https://img.shields.io/npm/dm/@unplugin-convention-routes.svg">
+    <img src="https://img.shields.io/npm/dm/unplugin-convention-routes.svg" alt="npm downloads">
   </a>
   <br>
 </p>
@@ -16,7 +16,7 @@
 
 ⚡️ 使用 `import.meta.glob` (Vite) 和 `import.meta.webpackContext` (Rspack) 实现零运行时依赖，自动支持 HMR。
 
----
+***
 
 ## 📦 安装
 
@@ -60,12 +60,12 @@ export default defineConfig({
 
 ### 文件命名规则
 
-| 文件名 | 路由路径 |
-|--------|----------|
-| `index.vue` | `/` |
-| `about.vue` | `/about` |
-| `about/index.vue` | `/about` |
-| `blog/[id].vue` | `/blog/:id` |
+| 文件名                 | 路由路径              |
+| ------------------- | ----------------- |
+| `index.vue`         | `/`               |
+| `about.vue`         | `/about`          |
+| `about/index.vue`   | `/about`          |
+| `blog/[id].vue`     | `/blog/:id`       |
 | `blog/[...all].vue` | `/blog/:all(.*)*` |
 
 ### Vue 使用
@@ -121,13 +121,13 @@ interface UserOptions {
 }
 ```
 
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `resolver` | 框架类型 | 必填 |
-| `dirs` | 页面目录 | `'src/pages'` |
-| `extensions` | 文件扩展名 | Vue: `['vue', 'ts', 'js']` / React: `['tsx', 'jsx', 'ts', 'js']` |
-| `caseSensitive` | 路径大小写敏感 | `false` |
-| `routeNameSeparator` | 路由名称分隔符 | `'-'` |
+| 选项                   | 说明      | 默认值                                                              |
+| -------------------- | ------- | ---------------------------------------------------------------- |
+| `resolver`           | 框架类型    | 必填                                                               |
+| `dirs`               | 页面目录    | `'src/pages'`                                                    |
+| `extensions`         | 文件扩展名   | Vue: `['vue', 'ts', 'js']` / React: `['tsx', 'jsx', 'ts', 'js']` |
+| `caseSensitive`      | 路径大小写敏感 | `false`                                                          |
+| `routeNameSeparator` | 路由名称分隔符 | `'-'`                                                            |
 
 ## 🔨 示例项目
 
@@ -140,3 +140,4 @@ interface UserOptions {
 
 - [unplugin](https://github.com/unjs/unplugin)
 - [vite-plugin-pages](https://github.com/hannoeru/vite-plugin-pages)
+

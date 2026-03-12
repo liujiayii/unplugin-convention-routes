@@ -73,7 +73,5 @@ export const unpluginFactory: UnpluginFactory<UserOptions> = (userOptions, { fra
  */
 export const unplugin = /* #__PURE__ */ createUnplugin(unpluginFactory)
 
-export default unplugin
-
 // 导出类型定义
 export * from "./core/types"

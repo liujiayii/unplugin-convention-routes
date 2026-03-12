@@ -11,12 +11,19 @@ export interface ReactRoute {
 }
 
 /**
+ * 正则表达式特殊字符匹配模式
+ * 移到模块作用域以避免每次调用重新编译
+ */
+const ESCAPE_REGEXP = /[.*+?^${}()|[\]\\/:]/g
+
+/**
  * 转义正则表达式中的特殊字符
+ * 包括 Windows 路径中的特殊字符（如 / 和 :）
  * @param str - 待转义的字符串
  * @returns 转义后的字符串
  */
 function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  return str.replace(ESCAPE_REGEXP, "\\$&")
 }
 
 /**
@@ -38,7 +45,7 @@ export function generateReactViteCode(options: ResolvedOptions): string {
     // 生成路由扫描和处理代码
     contextBlocks.push(`
 const ${contextVar} = import.meta.glob('${globPattern}')
-Object.entries(${contextVar}).forEach(([path, module]) => {
+Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
   // 忽略 __xxx 格式的文件/目录（Remix 风格）
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
@@ -46,20 +53,22 @@ Object.entries(${contextVar}).forEach(([path, module]) => {
 
   let routePath = path
     .replace(/${escapedDir}/, '')
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(tsx|jsx|ts|js)$/, '')
-    .replace(/\\/index$/, '')
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
     .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
-      isCatchAll ? \`:\${name}(.*)*\` : \`:\${name}\`
+      isCatchAll ? \`:\${name}/*\` : \`:\${name}\`
     )
     .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
-    .replace(/\\$$/, '(.*)*') // Remix 风格: $ -> catch-all
+    .replace(/\\$$/, '/*') // Remix 风格: $ -> catch-all (React Router 格式)
     ${options.caseSensitive ? "" : ".toLowerCase()"}
 
-  routePath = '${basePath}' + routePath || '/'
+  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
 
   routes.push({
     path: routePath,
-    element: React.createElement(React.lazy(module as any))
+    element: React.createElement(React.lazy(moduleFn as any))
   })
 })`)
   }
@@ -91,6 +100,7 @@ export function generateReactRspackCode(options: ResolvedOptions): string {
 
     // 生成路由扫描和处理代码
     // 注意：Rspack 的 webpackContext 使用绝对路径
+    // webpackContext 返回的是 CommonJS 模块，需要转换为 ES Module 格式
     contextBlocks.push(`
 const ${contextVar} = import.meta.webpackContext('${pattern.path}', {
   recursive: ${pattern.recursive},
@@ -104,20 +114,31 @@ ${contextVar}.keys().forEach((key) => {
 
   let routePath = key
     .replace(/${escapedDir}/, '')
+    .replace(/^\\.\\//, '') // 移除开头的 ./
+    .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(tsx|jsx|ts|js)$/, '')
-    .replace(/\\/index$/, '')
+    .replace(/\\/index$/, '') // 移除结尾的 /index
+    .replace(/^index$/, '') // 移除单独的 index
     .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
-      isCatchAll ? \`:\${name}(.*)*\` : \`:\${name}\`
+      isCatchAll ? \`:\${name}/*\` : \`:\${name}\`
     )
     .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
-    .replace(/\\$$/, '(.*)*') // Remix 风格: $ -> catch-all
+    .replace(/\\$$/, '/*') // Remix 风格: $ -> catch-all (React Router 格式)
     ${options.caseSensitive ? "" : ".toLowerCase()"}
 
-  routePath = '${basePath}' + routePath || '/'
+  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
+
+  // webpackContext 返回 CommonJS 模块，需要转换为 ES Module 格式
+  // React.lazy 需要一个返回 Promise 的函数，Promise resolve 一个包含 default 的对象
+  const loadModule = async () => {
+    const module = await ${contextVar}(key)
+    // 确保返回正确的 ES Module 格式
+    return { default: module.default || module }
+  }
 
   routes.push({
     path: routePath,
-    element: React.createElement(React.lazy(() => ${contextVar}(key)))
+    element: React.createElement(React.lazy(loadModule))
   })
 })`)
   }
