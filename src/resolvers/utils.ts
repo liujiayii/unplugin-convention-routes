@@ -84,22 +84,29 @@ function escapeRegexString(str: string): string {
 }
 
 /**
- * 生成 exclude 过滤代码
+ * 创建排除模式的正则表达式数组代码
+ * 在循环外部调用，只执行一次，避免每次迭代重复创建正则表达式
  * @param exclude - 排除模式数组
- * @param pathVarName - 路径变量名，Vite 用 'path'，Rspack 用 'key'
- * @returns 过滤代码字符串
+ * @param varName - 正则数组变量名
+ * @returns 创建正则数组的代码字符串，如果 exclude 为空则返回空字符串
  */
-export function generateExcludeFilter(exclude: string[], pathVarName: string = "path"): string {
+export function createExcludePatterns(exclude: string[], varName: string = "excludePatterns"): string {
   if (!exclude || exclude.length === 0) {
     return ""
   }
 
   // 将 glob 模式转换为正则表达式字符串，并转义反斜杠以便在 new RegExp() 中使用
   const patterns = exclude.map(p => escapeRegexString(globToRegExp(p)))
-  return `
-  // 检查是否匹配排除模式
-  const excludePatterns = [${patterns.map(p => `new RegExp('${p}')`).join(", ")}]
-  const shouldExclude = excludePatterns.some(pattern => pattern.test(${pathVarName}))
-  if (shouldExclude) return
-`
+  return `const ${varName} = [${patterns.map(p => `new RegExp('${p}')`).join(", ")}]`
+}
+
+/**
+ * 生成排除模式的检查代码
+ * 在循环内部调用，用于检查当前路径是否匹配排除模式
+ * @param pathVarName - 路径变量名，Vite 用 'path'，Rspack 用 'key'
+ * @param patternsVarName - 正则数组变量名，需要与 createExcludePatterns 中的一致
+ * @returns 检查代码字符串
+ */
+export function generateExcludeCheck(pathVarName: string = "path", patternsVarName: string = "excludePatterns"): string {
+  return `if (${patternsVarName}.some(pattern => pattern.test(${pathVarName}))) return`
 }

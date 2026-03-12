@@ -1,6 +1,6 @@
 import type { BuildTool, ResolvedOptions } from "../core/types"
 import { getGlobPattern, getWebpackContextPattern } from "../core/path"
-import { escapeRegExp, generateExcludeFilter } from "./utils"
+import { createExcludePatterns, escapeRegExp, generateExcludeCheck } from "./utils"
 
 /**
  * Vue 路由接口定义
@@ -20,7 +20,9 @@ export interface VueRoute {
  */
 export function generateVueViteCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
-  const excludeFilter = generateExcludeFilter(options.exclude)
+  // 在循环外创建正则表达式数组，避免每次迭代重复创建
+  const excludePatternsCode = createExcludePatterns(options.exclude)
+  const excludeCheckCode = generateExcludeCheck("path")
 
   for (const dir of options.dirs) {
     const globPattern = getGlobPattern(dir, options.extensions)
@@ -37,7 +39,7 @@ Object.entries(${contextVar}).forEach(([path, module]) => {
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-${excludeFilter}
+  ${excludeCheckCode}
   let routePath = path
     .replace(/${escapedDir}/, '')
     .replace(/^\\//, '') // 移除开头的 /
@@ -73,7 +75,7 @@ ${excludeFilter}
   }
 
   return `const routes = []
-${contextBlocks.join("\n")}
+${excludePatternsCode ? `${excludePatternsCode}\n` : ""}${contextBlocks.join("\n")}
 
 export default routes
 `
@@ -87,7 +89,9 @@ export default routes
  */
 export function generateVueRspackCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
-  const excludeFilter = generateExcludeFilter(options.exclude, "key")
+  // 在循环外创建正则表达式数组，避免每次迭代重复创建
+  const excludePatternsCode = createExcludePatterns(options.exclude)
+  const excludeCheckCode = generateExcludeCheck("key")
 
   for (const dir of options.dirs) {
     const pattern = getWebpackContextPattern(dir, options.extensions, options.root)
@@ -108,7 +112,7 @@ ${contextVar}.keys().forEach((key) => {
   const pathSegments = key.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-${excludeFilter}
+  ${excludeCheckCode}
   let routePath = key
     .replace(/${escapedDir}/, '')
     .replace(/^\\.\\//, '') // 移除开头的 ./
@@ -146,7 +150,7 @@ ${excludeFilter}
   }
 
   return `const routes = []
-${contextBlocks.join("\n")}
+${excludePatternsCode ? `${excludePatternsCode}\n` : ""}${contextBlocks.join("\n")}
 
 export default routes
 `

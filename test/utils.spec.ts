@@ -2,7 +2,7 @@
  * globToRegExp 函数测试
  */
 import { describe, expect, it } from 'vitest'
-import { generateExcludeFilter, globToRegExp } from '../src/resolvers/utils'
+import { createExcludePatterns, generateExcludeCheck, globToRegExp } from '../src/resolvers/utils'
 
 describe('globToRegExp', () => {
   describe('基本通配符', () => {
@@ -144,11 +144,11 @@ describe('globToRegExp', () => {
   })
 })
 
-describe('generateExcludeFilter', () => {
+describe('createExcludePatterns', () => {
   describe('生成的正则表达式字符串转义', () => {
     it('反斜杠正确双重转义', () => {
       // 验证生成的代码中反斜杠被正确转义
-      const code = generateExcludeFilter(['**/components.*'])
+      const code = createExcludePatterns(['**/components.*'])
       // 生成的代码应该包含双重转义的反斜杠
       // 例如：new RegExp('.*/components\\\\.[^/]*')
       expect(code).toContain('new RegExp(')
@@ -157,9 +157,10 @@ describe('generateExcludeFilter', () => {
     })
 
     it('生成的正则能正确匹配', () => {
-      const code = generateExcludeFilter(['**/components.*'])
+      const patternsCode = createExcludePatterns(['**/components.*'])
+      const checkCode = generateExcludeCheck('path')
       // 使用 Function 构造器执行生成的代码，模拟实际运行环境
-      const testFn = new Function('path', code + 'return true')
+      const testFn = new Function('path', `${patternsCode}; ${checkCode}; return true`)
       // 路径包含 /components. 应该被排除（返回 undefined）
       expect(testFn('src/components.vue')).toBeUndefined()
       expect(testFn('src/pages/components.ts')).toBeUndefined()
@@ -169,8 +170,9 @@ describe('generateExcludeFilter', () => {
     })
 
     it('生成的正则正确匹配 components 目录', () => {
-      const code = generateExcludeFilter(['**/components/**'])
-      const testFn = new Function('path', code + 'return true')
+      const patternsCode = createExcludePatterns(['**/components/**'])
+      const checkCode = generateExcludeCheck('path')
+      const testFn = new Function('path', `${patternsCode}; ${checkCode}; return true`)
       // 路径包含 /components/ 应该被排除
       expect(testFn('src/components/foo.vue')).toBeUndefined()
       expect(testFn('src/pages/components/bar.ts')).toBeUndefined()
@@ -181,17 +183,17 @@ describe('generateExcludeFilter', () => {
 
   describe('空数组处理', () => {
     it('空数组返回空字符串', () => {
-      expect(generateExcludeFilter([])).toBe('')
+      expect(createExcludePatterns([])).toBe('')
     })
 
     it('undefined 返回空字符串', () => {
-      expect(generateExcludeFilter(undefined as any)).toBe('')
+      expect(createExcludePatterns(undefined as any)).toBe('')
     })
   })
 
   describe('多个排除模式', () => {
     it('多个模式正确生成', () => {
-      const code = generateExcludeFilter(['node_modules', '**/components/**'])
+      const code = createExcludePatterns(['node_modules', '**/components/**'])
       expect(code).toContain('new RegExp(')
       // 验证两个模式都被包含
       expect(code).toContain('node_modules')
@@ -199,15 +201,50 @@ describe('generateExcludeFilter', () => {
     })
   })
 
-  describe('路径变量名', () => {
-    it('默认使用 path', () => {
-      const code = generateExcludeFilter(['node_modules'])
-      expect(code).toContain('pattern.test(path)')
+  describe('自定义变量名', () => {
+    it('默认使用 excludePatterns', () => {
+      const code = createExcludePatterns(['node_modules'])
+      expect(code).toContain('const excludePatterns')
     })
 
-    it('可以自定义路径变量名', () => {
-      const code = generateExcludeFilter(['node_modules'], 'key')
+    it('可以自定义变量名', () => {
+      const code = createExcludePatterns(['node_modules'], 'myPatterns')
+      expect(code).toContain('const myPatterns')
+    })
+  })
+})
+
+describe('generateExcludeCheck', () => {
+  describe('默认参数', () => {
+    it('默认使用 path 和 excludePatterns', () => {
+      const code = generateExcludeCheck()
+      expect(code).toBe('if (excludePatterns.some(pattern => pattern.test(path))) return')
+    })
+  })
+
+  describe('自定义路径变量名', () => {
+    it('可以自定义路径变量名为 key', () => {
+      const code = generateExcludeCheck('key')
       expect(code).toContain('pattern.test(key)')
+    })
+  })
+
+  describe('自定义正则数组变量名', () => {
+    it('可以自定义正则数组变量名', () => {
+      const code = generateExcludeCheck('path', 'myPatterns')
+      expect(code).toContain('myPatterns.some')
+    })
+  })
+
+  describe('与 createExcludePatterns 配合使用', () => {
+    it('使用自定义变量名配合', () => {
+      const patternsCode = createExcludePatterns(['node_modules'], 'myPatterns')
+      const checkCode = generateExcludeCheck('key', 'myPatterns')
+      const testFn = new Function('key', `${patternsCode}; ${checkCode}; return true`)
+      // node_modules 路径应该被排除
+      expect(testFn('node_modules/foo')).toBeUndefined()
+      // 其他路径不应该被排除
+      expect(testFn('src/index.vue')).toBe(true)
     })
   })
 })
