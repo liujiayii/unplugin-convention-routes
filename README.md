@@ -238,7 +238,17 @@ Pages({
 
 ### `exclude`
 
-排除不需要生成路由的文件或目录。使用 [minimatch](https://github.com/isaacs/minimatch) 模式匹配。
+排除不需要生成路由的文件或目录。支持基本的 glob 模式匹配。
+
+**支持的通配符：**
+
+| 通配符 | 说明 | 示例 |
+| ------ | ---- | ---- |
+| `**` | 匹配任意层级的目录和文件 | `**/components/**` 匹配任意层级的 components 目录 |
+| `*` | 匹配单个路径段中的任意字符（不包括 `/`） | `*.test.*` 匹配 `foo.test.ts` |
+| `?` | 匹配单个字符（不包括 `/`） | `file?.vue` 匹配 `file1.vue` |
+
+> ⚠️ **注意**：不支持 minimatch 的高级功能，如否定模式 `!`、花括号扩展 `{a,b}` 等。
 
 **默认排除列表：**
 - `node_modules` - 依赖目录
@@ -356,7 +366,7 @@ Pages({
     routes.push({
       path: "/:pathMatch(.*)*",
       name: "NotFound",
-      component: "() => import('./src/pages/404.vue')",
+      component: () => import("./src/pages/404.vue"),
     })
 
     // 过滤掉某些路由
