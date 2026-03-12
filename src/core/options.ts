@@ -1,107 +1,70 @@
-import type { ImportModeResolver, ResolvedOptions, UserOptions } from './types'
-import { resolve } from 'node:path'
-import process from 'node:process'
-import { slash, toArray } from '@antfu/utils'
+import type { PageDir, ResolvedOptions, Resolver, UserOptions } from "./types"
+import process from "node:process"
+import { slash, toArray } from "@antfu/utils"
 
-import { MODULE_IDS } from './constants'
-import { getPageDirs } from './files'
-import { reactResolver, solidResolver, vueResolver } from './resolvers'
-
-function resolvePageDirs(dirs: UserOptions['dirs'], root: string, exclude: string[]): any {
-  dirs = toArray(dirs)
-  return dirs.flatMap((dir) => {
-    const option = typeof dir === 'string'
-      ? { dir, baseRoute: '' }
-      : dir
-
-    option.dir = slash(resolve(root, option.dir)).replace(`${root}/`, '')
-    option.baseRoute = option.baseRoute.replace(/^\//, '').replace(/\/$/, '')
-
-    return getPageDirs(option, root, exclude)
-  })
+/**
+ * 各框架默认支持的文件扩展名
+ */
+const DEFAULT_EXTENSIONS: Record<Resolver, string[]> = {
+  vue: ["vue", "ts", "js"],
+  react: ["tsx", "jsx", "ts", "js"],
 }
 
-export const syncIndexResolver: ImportModeResolver = (filepath, options) => {
-  for (const page of options.dirs) {
-    if (page.baseRoute === '' && filepath.startsWith(`/${page.dir}/index`))
-      return 'sync'
-  }
-  return 'async'
-}
-
-function getResolver(originalResolver: UserOptions['resolver']): any {
-  let resolver = originalResolver || 'vue'
-
-  if (typeof resolver !== 'string')
-    return resolver
-
-  switch (resolver) {
-    case 'vue':
-      resolver = vueResolver()
-      break
-    case 'react':
-      resolver = reactResolver()
-      break
-    case 'solid':
-      resolver = solidResolver()
-      break
-    default:
-      throw new Error(`Unsupported resolver: ${resolver}`)
-  }
-  return resolver
-}
-
-export function resolveOptions(userOptions: UserOptions, projectRoot?: string): ResolvedOptions {
+/**
+ * 解析用户配置选项
+ * 将用户提供的配置转换为内部使用的完整配置对象
+ * @param userOptions - 用户配置选项
+ * @returns 解析后的完整配置对象
+ */
+export function resolveOptions(userOptions: UserOptions): ResolvedOptions {
   const {
-    dirs = userOptions.pagesDir || ['src/pages'],
-    routeBlockLang = 'json5',
-    exclude = ['node_modules', '.git', '**/__*__/**'],
+    // 必填项：路由解析器类型
+    resolver,
+    // 可选项：页面目录，默认为 'src/pages'
+    dirs = "src/pages",
+    // 可选项：文件扩展名，根据 resolver 类型有不同默认值
+    extensions = DEFAULT_EXTENSIONS[resolver],
+    // 可选项：排除的文件模式
+    exclude = ["node_modules", ".git", "**/__*__/**"],
+    // 可选项：导入路径风格
+    importPath = "relative",
+    // 可选项：路径大小写敏感
     caseSensitive = false,
-    syncIndex = true,
-    routeNameSeparator = '-',
+    // 可选项：路由名称分隔符
+    routeNameSeparator = "-",
+    // 可选项：钩子函数
     extendRoute,
     onRoutesGenerated,
     onClientGenerated,
   } = userOptions
 
-  const root = projectRoot || slash(process.cwd())
+  // 获取项目根目录，并统一使用正斜杠
+  const root = slash(process.cwd())
 
-  const importMode = userOptions.importMode || (syncIndex ? syncIndexResolver : 'async')
+  // 将 dirs 统一转换为 PageDir 数组格式
+  // 同时将路径中的反斜杠转换为正斜杠，避免 Windows 路径问题
+  const normalizedDirs = typeof dirs === "string" ? { dir: dirs, baseRoute: "" } : dirs
+  const resolvedDirs: PageDir[] = toArray(normalizedDirs).map((dir) => {
+    if (typeof dir === "string") {
+      return { dir: slash(dir), baseRoute: "" }
+    }
+    return {
+      ...dir,
+      dir: slash(dir.dir),
+    }
+  })
 
-  const importPath = userOptions.importPath || 'relative'
-
-  const resolver = getResolver(userOptions.resolver)
-
-  const extensions = userOptions.extensions || resolver.resolveExtensions()
-
-  const extensionsRE = new RegExp(`\\.(${extensions.join('|')})$`)
-
-  const resolvedDirs = resolvePageDirs(dirs, root, exclude)
-
-  const routeStyle = userOptions.nuxtStyle ? 'nuxt' : userOptions.routeStyle || 'next'
-
-  const moduleIds = userOptions.moduleId
-    ? [userOptions.moduleId]
-    : resolver.resolveModuleIds?.() || MODULE_IDS
-
-  const resolvedOptions: ResolvedOptions = {
-    dirs: resolvedDirs,
-    routeStyle,
-    routeBlockLang,
-    moduleIds,
+  return {
     root,
-    extensions,
-    importMode,
-    importPath,
-    exclude,
-    caseSensitive,
     resolver,
-    extensionsRE,
+    dirs: resolvedDirs,
+    extensions,
+    exclude,
+    importPath,
+    caseSensitive,
+    routeNameSeparator,
     extendRoute,
     onRoutesGenerated,
     onClientGenerated,
-    routeNameSeparator,
   }
-
-  return resolvedOptions
 }

@@ -5,7 +5,7 @@ name: Push Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 # 任务
 jobs:

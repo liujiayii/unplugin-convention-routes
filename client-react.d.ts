@@ -1,5 +1,12 @@
-declare module '~unplugin-convention-routes/react' {
-  import type { RouteObject } from 'react-router'
+declare module "virtual:unplugin-convention-routes/react" {
+  import type { RouteObject } from "react-router"
+
+  const routes: RouteObject[]
+  export default routes
+}
+
+declare module "~react-pages" {
+  import type { RouteObject } from "react-router"
 
   const routes: RouteObject[]
   export default routes

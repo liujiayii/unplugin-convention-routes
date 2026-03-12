@@ -1,6 +1,20 @@
-import antfu from '@antfu/eslint-config'
+import antfu from "@antfu/eslint-config"
 
 export default antfu({
-  type: 'lib',
-  ignores: ['e2e', 'test', 'examples'],
+  // 库项目类型
+  type: "lib",
+
+  // 忽略的目录
+  ignores: [
+    "examples",
+    "test",
+    "**/dist",
+    "**/fixtures",
+  ],
+
+  // 启用样式规则
+  stylistic: {
+    indent: 2,
+    quotes: "double",
+  },
 })
