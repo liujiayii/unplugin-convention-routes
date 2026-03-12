@@ -49,7 +49,7 @@ describe('generateVueRoutes - Vite', () => {
     expect(code).toContain('__pages_0__')
     expect(code).toContain('__pages_1__')
     // 检查是否包含 baseRoute
-    expect(code).toContain("routePath = '/admin' + routePath")
+    expect(code).toContain("routePath = '/admin' + (routePath")
   })
 
   it('生成自定义扩展名的路由代码', () => {

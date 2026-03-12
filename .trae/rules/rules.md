@@ -1,0 +1,3 @@
+本插件是基于unplugin开发的完全符合Remix框架的约定式路由规范的插件
+
+支持rspack、vite构建框架，支持react、vue库

@@ -46,8 +46,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsup --watch src",
-    "build": "tsup",
+    "dev": "tsdown --watch src",
+    "build": "tsdown",
     "play": "pnpm --filter vue dev",
     "play:react": "pnpm --filter react dev",
     "prepublishOnly": "npm run build",
@@ -85,18 +85,11 @@
     "esno": "^4.8.0",
     "react": "^19.2.4",
     "react-router": "^7.13.1",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.21.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18",
     "vue": "^3.5.30",
     "vue-router": "^5.0.3"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "eslint": "*"
-      }
-    }
   }
 }
