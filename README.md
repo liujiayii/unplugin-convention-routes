@@ -360,7 +360,7 @@ Pages({
     })
 
     // 过滤掉某些路由
-    return routes.filter((route) => !route.path.startsWith("/draft"))
+    return routes.filter(route => !route.path.startsWith("/draft"))
   },
 })
 ```
