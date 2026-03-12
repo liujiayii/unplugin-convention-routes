@@ -3,7 +3,7 @@
     <img src="https://img.shields.io/npm/v/unplugin-convention-routes.svg" alt="npm version">
   </a>
   <a href="https://npmcharts.com/compare/unplugin-convention-routes?minimal=true">
-    <img src="https://img.shields.io/npm/dm/@unplugin-convention-routes.svg" alt="npm downloads">
+    <img src="https://img.shields.io/npm/dm/unplugin-convention-routes.svg" alt="npm downloads">
   </a>
   <br>
 </p>
