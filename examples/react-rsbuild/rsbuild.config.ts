@@ -8,6 +8,8 @@ export default defineConfig({
       plugins: [
         Pages({
           resolver: 'react',
+          dirs: 'src/pages',
+          extensions: ['tsx', 'jsx'],
         }),
       ],
     },
