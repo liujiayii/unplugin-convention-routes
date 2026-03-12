@@ -24,8 +24,8 @@ export function resolveOptions(userOptions: UserOptions): ResolvedOptions {
     dirs = "src/pages",
     // 可选项：文件扩展名，根据 resolver 类型有不同默认值
     extensions = DEFAULT_EXTENSIONS[resolver],
-    // 可选项：排除的文件模式
-    exclude = ["node_modules", ".git", "**/__*__/**"],
+    // 可选项：排除的文件模式，默认排除 node_modules、.git、测试目录和 components
+    exclude = ["node_modules", ".git", "**/__*__/**", "**/components/**", "**/components.*"],
     // 可选项：导入路径风格
     importPath = "relative",
     // 可选项：路径大小写敏感

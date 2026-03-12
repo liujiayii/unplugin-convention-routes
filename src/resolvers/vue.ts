@@ -28,6 +28,42 @@ function escapeRegExp(str: string): string {
 }
 
 /**
+ * 将 glob 模式转换为正则表达式
+ * 支持 **、*、? 等基本 glob 语法
+ * @param pattern - glob 模式
+ * @returns 正则表达式字符串
+ */
+function globToRegExp(pattern: string): string {
+  return pattern
+    .replace(/\*\*/g, "<<<DOUBLE_STAR>>>")
+    .replace(/\*/g, "[^/]*")
+    .replace(/<<<DOUBLE_STAR>>>/g, ".*")
+    .replace(/\?/g, "[^/]")
+    .replace(/\./g, "\\.")
+    .replace(/\//g, "\\/")
+}
+
+/**
+ * 生成 exclude 过滤代码
+ * @param exclude - 排除模式数组
+ * @param pathVarName - 路径变量名，Vite 用 'path'，Rspack 用 'key'
+ * @returns 过滤代码字符串
+ */
+function generateExcludeFilter(exclude: string[], pathVarName: string = "path"): string {
+  if (!exclude || exclude.length === 0) {
+    return ""
+  }
+
+  const patterns = exclude.map(p => globToRegExp(p))
+  return `
+  // 检查是否匹配排除模式
+  const excludePatterns = [${patterns.map(p => `new RegExp('${p}')`).join(", ")}]
+  const shouldExclude = excludePatterns.some(pattern => pattern.test(${pathVarName}))
+  if (shouldExclude) return
+`
+}
+
+/**
  * 生成 Vue + Vite 的路由代码
  * 使用 import.meta.glob 自动扫描页面文件
  * @param options - 解析后的配置选项
@@ -35,6 +71,7 @@ function escapeRegExp(str: string): string {
  */
 export function generateVueViteCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
+  const excludeFilter = generateExcludeFilter(options.exclude)
 
   for (const dir of options.dirs) {
     const globPattern = getGlobPattern(dir, options.extensions)
@@ -51,7 +88,7 @@ Object.entries(${contextVar}).forEach(([path, module]) => {
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-
+${excludeFilter}
   let routePath = path
     .replace(/${escapedDir}/, '')
     .replace(/^\\//, '') // 移除开头的 /
@@ -101,6 +138,7 @@ export default routes
  */
 export function generateVueRspackCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
+  const excludeFilter = generateExcludeFilter(options.exclude, "key")
 
   for (const dir of options.dirs) {
     const pattern = getWebpackContextPattern(dir, options.extensions, options.root)
@@ -121,7 +159,7 @@ ${contextVar}.keys().forEach((key) => {
   const pathSegments = key.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-
+${excludeFilter}
   let routePath = key
     .replace(/${escapedDir}/, '')
     .replace(/^\\.\\//, '') // 移除开头的 ./
