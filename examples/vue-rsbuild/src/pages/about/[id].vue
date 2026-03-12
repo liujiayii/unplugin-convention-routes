@@ -15,12 +15,3 @@ defineProps({
     <router-view />
   </div>
 </template>
-
-<route>
-{
-  name: 'about-user-id',
-  meta: {
-    requiresAuth: true,
-  },
-}
-</route>

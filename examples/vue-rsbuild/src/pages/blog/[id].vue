@@ -12,12 +12,3 @@ defineProps({
     </p>
   </div>
 </template>
-
-<route>
-{
-  name: 'blog-id',
-  meta: {
-    requiresAuth: false,
-  },
-}
-</route>
