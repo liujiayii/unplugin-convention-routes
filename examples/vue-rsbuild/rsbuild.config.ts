@@ -9,7 +9,7 @@ export default defineConfig({
         Pages({
           resolver: 'vue',
           dirs: 'src/pages',
-          extensions: ['vue', 'jsx'],
+          extensions: ['vue'],
         }),
       ],
     },

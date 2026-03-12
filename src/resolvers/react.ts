@@ -1,5 +1,6 @@
 import type { BuildTool, ResolvedOptions } from "../core/types"
 import { getGlobPattern, getWebpackContextPattern } from "../core/path"
+import { createExcludePatterns, escapeRegExp, generateExcludeCheck } from "./utils"
 
 /**
  * React 路由接口定义
@@ -11,22 +12,6 @@ export interface ReactRoute {
 }
 
 /**
- * 正则表达式特殊字符匹配模式
- * 移到模块作用域以避免每次调用重新编译
- */
-const ESCAPE_REGEXP = /[.*+?^${}()|[\]\\/:]/g
-
-/**
- * 转义正则表达式中的特殊字符
- * 包括 Windows 路径中的特殊字符（如 / 和 :）
- * @param str - 待转义的字符串
- * @returns 转义后的字符串
- */
-function escapeRegExp(str: string): string {
-  return str.replace(ESCAPE_REGEXP, "\\$&")
-}
-
-/**
  * 生成 React + Vite 的路由代码
  * 使用 import.meta.glob 自动扫描页面文件
  * @param options - 解析后的配置选项
@@ -34,6 +19,10 @@ function escapeRegExp(str: string): string {
  */
 export function generateReactViteCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
+  // 在循环外创建正则表达式数组，避免每次迭代重复创建
+  const excludePatternsCode = createExcludePatterns(options.exclude)
+  // 只有当有排除模式时才生成检查代码
+  const excludeCheckCode = excludePatternsCode ? generateExcludeCheck("path") : ""
 
   for (const dir of options.dirs) {
     const globPattern = getGlobPattern(dir, options.extensions)
@@ -50,8 +39,7 @@ Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-
-  let routePath = path
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = path
     .replace(/${escapedDir}/, '')
     .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(tsx|jsx|ts|js)$/, '')
@@ -68,7 +56,7 @@ Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
 
   routes.push({
     path: routePath,
-    element: React.createElement(React.lazy(moduleFn as any))
+    element: React.createElement(React.lazy(moduleFn))
   })
 })`)
   }
@@ -76,7 +64,7 @@ Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
   return `import React from 'react'
 
 const routes = []
-${contextBlocks.join("\n")}
+${excludePatternsCode ? `${excludePatternsCode}\n` : ""}${contextBlocks.join("\n")}
 
 export default routes
 `
@@ -90,6 +78,10 @@ export default routes
  */
 export function generateReactRspackCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
+  // 在循环外创建正则表达式数组，避免每次迭代重复创建
+  const excludePatternsCode = createExcludePatterns(options.exclude)
+  // 只有当有排除模式时才生成检查代码
+  const excludeCheckCode = excludePatternsCode ? generateExcludeCheck("key") : ""
 
   for (const dir of options.dirs) {
     const pattern = getWebpackContextPattern(dir, options.extensions, options.root)
@@ -111,8 +103,7 @@ ${contextVar}.keys().forEach((key) => {
   const pathSegments = key.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-
-  let routePath = key
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = key
     .replace(/${escapedDir}/, '')
     .replace(/^\\.\\//, '') // 移除开头的 ./
     .replace(/^\\//, '') // 移除开头的 /
@@ -146,7 +137,7 @@ ${contextVar}.keys().forEach((key) => {
   return `import React from 'react'
 
 const routes = []
-${contextBlocks.join("\n")}
+${excludePatternsCode ? `${excludePatternsCode}\n` : ""}${contextBlocks.join("\n")}
 
 export default routes
 `
