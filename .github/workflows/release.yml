@@ -24,7 +24,7 @@ jobs:
       # 安装node
       - name: 设置Node.js
         # 使用actions/setup-node插件
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           # node版本
           node-version: 20
