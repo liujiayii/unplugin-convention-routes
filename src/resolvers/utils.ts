@@ -16,8 +16,13 @@ export const ESCAPE_REGEXP = /[.*+?^${}()|[\]\\/:]/g
 export const GLOB_DOUBLE_STAR_RE = /\*\*/g
 export const GLOB_SINGLE_STAR_RE = /\*/g
 export const GLOB_QUESTION_RE = /\?/g
-export const GLOB_DOT_RE = /\./g
-export const GLOB_SLASH_RE = /\//g
+
+/**
+ * 正则元字符匹配模式（不包含 / 和 :，因为它们在 new RegExp() 中不是特殊字符）
+ * 用于 glob 模式转换时转义字面字符
+ * 移到模块作用域以避免每次调用重新编译
+ */
+const REGEX_META_CHARS_RE = /[.+^${}()|[\]\\]/g
 
 /**
  * 占位符替换用的正则表达式
@@ -49,10 +54,10 @@ export function escapeRegExp(str: string): string {
  *
  * 转换顺序很重要：
  * 1. 先用占位符替换 glob 通配符，避免后续转义影响
- * 2. 转义字面字符（.）
+ * 2. 转义所有正则元字符（. + ^ $ { } ( ) | [ ] \），让它们作为字面量
  * 3. 将占位符替换为正则表达式
  *
- * 注意：/ 不需要转义，因为在 new RegExp() 中 / 不是特殊字符
+ * 注意：/ 和 : 不需要转义，因为在 new RegExp() 中它们不是特殊字符
  *
  * @param pattern - glob 模式
  * @returns 正则表达式字符串
@@ -63,9 +68,9 @@ export function globToRegExp(pattern: string): string {
     .replace(GLOB_DOUBLE_STAR_RE, "<<<DOUBLE_STAR>>>")
     .replace(GLOB_SINGLE_STAR_RE, "<<<SINGLE_STAR>>>")
     .replace(GLOB_QUESTION_RE, "<<<QUESTION>>>")
-    // 转义字面字符（.）
-    // 注意：/ 不需要转义，因为在 new RegExp() 中 / 不是特殊字符
-    .replace(GLOB_DOT_RE, "\\.")
+    // 转义所有正则元字符，让它们作为字面量
+    // 注意：/ 和 : 在 new RegExp() 中不是特殊字符，不需要转义
+    .replace(REGEX_META_CHARS_RE, "\\$&")
     // 将占位符替换为正则表达式
     .replace(PLACEHOLDER_DOUBLE_STAR_RE, ".*")
     .replace(PLACEHOLDER_SINGLE_STAR_RE, "[^/]*")

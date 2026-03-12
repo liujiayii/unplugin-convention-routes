@@ -21,7 +21,8 @@ export function generateReactViteCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
   // 在循环外创建正则表达式数组，避免每次迭代重复创建
   const excludePatternsCode = createExcludePatterns(options.exclude)
-  const excludeCheckCode = generateExcludeCheck("path")
+  // 只有当有排除模式时才生成检查代码
+  const excludeCheckCode = excludePatternsCode ? generateExcludeCheck("path") : ""
 
   for (const dir of options.dirs) {
     const globPattern = getGlobPattern(dir, options.extensions)
@@ -38,8 +39,7 @@ Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-  ${excludeCheckCode}
-  let routePath = path
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = path
     .replace(/${escapedDir}/, '')
     .replace(/^\\//, '') // 移除开头的 /
     .replace(/\\.(tsx|jsx|ts|js)$/, '')
@@ -80,7 +80,8 @@ export function generateReactRspackCode(options: ResolvedOptions): string {
   const contextBlocks: string[] = []
   // 在循环外创建正则表达式数组，避免每次迭代重复创建
   const excludePatternsCode = createExcludePatterns(options.exclude)
-  const excludeCheckCode = generateExcludeCheck("key")
+  // 只有当有排除模式时才生成检查代码
+  const excludeCheckCode = excludePatternsCode ? generateExcludeCheck("key") : ""
 
   for (const dir of options.dirs) {
     const pattern = getWebpackContextPattern(dir, options.extensions, options.root)
@@ -102,8 +103,7 @@ ${contextVar}.keys().forEach((key) => {
   const pathSegments = key.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-  ${excludeCheckCode}
-  let routePath = key
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = key
     .replace(/${escapedDir}/, '')
     .replace(/^\\.\\//, '') // 移除开头的 ./
     .replace(/^\\//, '') // 移除开头的 /

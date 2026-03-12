@@ -71,6 +71,91 @@ describe('globToRegExp', () => {
     })
   })
 
+  describe('正则元字符转义', () => {
+    it('[ 和 ] 被正确转义，不会被当作字符类', () => {
+      // **/[id].tsx 中的 [id] 应该被当作字面量，而不是字符类
+      const regex = new RegExp(globToRegExp('**/[id].tsx'))
+      // 应该匹配包含字面量 [id] 的路径
+      expect(regex.test('src/[id].tsx')).toBe(true)
+      expect(regex.test('src/pages/[id].tsx')).toBe(true)
+      // 不应该匹配其他字符（如果 [id] 被当作字符类，会匹配 i, d 中的任意一个）
+      expect(regex.test('src/i.tsx')).toBe(false)
+      expect(regex.test('src/d.tsx')).toBe(false)
+    })
+
+    it('$ 被正确转义，不会被当作行尾锚点', () => {
+      // **/$id.tsx 中的 $ 应该被当作字面量，而不是行尾锚点
+      const regex = new RegExp(globToRegExp('**/$id.tsx'))
+      expect(regex.test('src/$id.tsx')).toBe(true)
+      expect(regex.test('src/pages/$id.tsx')).toBe(true)
+      // 不应该匹配结尾是 id.tsx 的路径
+      expect(regex.test('src/id.tsx')).toBe(false)
+    })
+
+    it('( 和 ) 被正确转义', () => {
+      const regex = new RegExp(globToRegExp('**/(test).vue'))
+      expect(regex.test('src/(test).vue')).toBe(true)
+      expect(regex.test('src/test.vue')).toBe(false)
+    })
+
+    it('{ 和 } 被正确转义', () => {
+      const regex = new RegExp(globToRegExp('**/{test}.vue'))
+      expect(regex.test('src/{test}.vue')).toBe(true)
+      expect(regex.test('src/test.vue')).toBe(false)
+    })
+
+    it('+ 被正确转义', () => {
+      const regex = new RegExp(globToRegExp('**/file+.vue'))
+      expect(regex.test('src/file+.vue')).toBe(true)
+      // 如果 + 没被转义，会匹配 filee.vue, fileee.vue 等
+      expect(regex.test('src/filee.vue')).toBe(false)
+    })
+
+    it('^ 被正确转义', () => {
+      const regex = new RegExp(globToRegExp('**/^test.vue'))
+      expect(regex.test('src/^test.vue')).toBe(true)
+      // 如果 ^ 没被转义，会匹配开头是 test.vue 的路径
+      expect(regex.test('src/test.vue')).toBe(false)
+    })
+
+    it('| 被正确转义', () => {
+      const regex = new RegExp(globToRegExp('**/a|b.vue'))
+      expect(regex.test('src/a|b.vue')).toBe(true)
+      // 如果 | 没被转义，会匹配 a.vue 或 b.vue
+      expect(regex.test('src/a.vue')).toBe(false)
+      expect(regex.test('src/b.vue')).toBe(false)
+    })
+
+    it('\\ 被正确转义', () => {
+      // 测试反斜杠作为字面量
+      const result = globToRegExp('test\\file.vue')
+      // 反斜杠应该被转义为双反斜杠
+      expect(result).toBe('test\\\\file\\.vue')
+    })
+
+    it('组合正则元字符 - Remix 风格动态路由', () => {
+      // 测试 Remix 风格的动态路由文件名 $id.tsx
+      // 注意：$id 是字面量，不是通配符，所以只会匹配 $id.tsx
+      const regex = new RegExp(globToRegExp('**/$id.tsx'))
+      expect(regex.test('src/routes/$id.tsx')).toBe(true)
+      // $postId.tsx 不应该匹配，因为 $id 是字面量
+      expect(regex.test('src/routes/$postId.tsx')).toBe(false)
+      // 不应该匹配没有 $ 的路径
+      expect(regex.test('src/routes/id.tsx')).toBe(false)
+      // 验证 $ 被转义
+      expect(globToRegExp('$id.tsx')).toBe('\\$id\\.tsx')
+    })
+
+    it('组合正则元字符 - Next.js 风格动态路由', () => {
+      // 测试 Next.js 风格的动态路由文件名 [id].tsx
+      const regex = new RegExp(globToRegExp('**/[id].tsx'))
+      expect(regex.test('src/routes/[id].tsx')).toBe(true)
+      expect(regex.test('src/routes/[slug].tsx')).toBe(false)
+      // 验证 [ 和 ] 被转义
+      expect(globToRegExp('[id].tsx')).toBe('\\[id\\]\\.tsx')
+    })
+  })
+
   describe('默认排除模式', () => {
     it('node_modules 模式', () => {
       const regex = new RegExp(globToRegExp('node_modules'))
@@ -79,7 +164,7 @@ describe('globToRegExp', () => {
     })
 
     it('**/__*__/** 模式', () => {
-      // 转换为 .*\/__[^/]__\/.*
+      // 转换为 .*/__[^/]*__/.*
       const regex = new RegExp(globToRegExp('**/__*__/**'))
       expect(regex.test('src/__tests__/foo')).toBe(true)
       expect(regex.test('src/__mocks__/bar')).toBe(true)
@@ -188,6 +273,18 @@ describe('createExcludePatterns', () => {
 
     it('undefined 返回空字符串', () => {
       expect(createExcludePatterns(undefined as any)).toBe('')
+    })
+
+    it('空数组时 generateExcludeCheck 不应该被调用', () => {
+      // 模拟 vue.ts 和 react.ts 的调用逻辑
+      const excludePatternsCode = createExcludePatterns([])
+      const excludeCheckCode = excludePatternsCode ? generateExcludeCheck('path') : ''
+      // 当 exclude 为空时，两个函数都应该返回空字符串
+      expect(excludePatternsCode).toBe('')
+      expect(excludeCheckCode).toBe('')
+      // 验证生成的代码可以正常执行，不会抛出 ReferenceError
+      const testFn = new Function('path', `${excludePatternsCode ? excludePatternsCode + ';' : ''}${excludeCheckCode ? excludeCheckCode + ';' : ''} return true`)
+      expect(testFn('src/index.vue')).toBe(true)
     })
   })
 
