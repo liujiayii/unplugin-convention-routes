@@ -1,184 +1,95 @@
-import type { Awaitable } from '@antfu/utils'
-import type { PageContext } from './context'
-import type { ReactRoute, SolidRoute, VueRoute } from './resolvers'
+import type { Awaitable } from "@antfu/utils"
 
-export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+/**
+ * 路由解析器类型
+ * 支持 vue 和 react 两种框架
+ */
+export type Resolver = "vue" | "react"
 
-export type ImportMode = 'sync' | 'async'
-export type ImportModeResolver = (filepath: string, pluginOptions: ResolvedOptions) => ImportMode
+/**
+ * 构建工具类型
+ * 支持 vite 和 rspack 两种构建工具
+ */
+export type BuildTool = "vite" | "rspack"
 
-export interface ParsedJSX {
-  value: string
-  loc: {
-    start: {
-      line: number
-    }
-  }
-}
-
-export type CustomBlock = Record<string, any>
-
-export type InternalPageResolvers = 'vue' | 'react' | 'solid'
-
-export interface PageOptions {
-  /**
-   * Page base directory.
-   * @default 'src/pages'
-   */
+/**
+ * 页面目录配置
+ */
+export interface PageDir {
+  /** 目录路径 */
   dir: string
-  /**
-   * Page base route.
-   */
-  baseRoute: string
-  /**
-   * @deprecated use `filePattern` instead
-   */
-  filePatern?: string
-  /**
-   * Page file pattern.
-   * @example `**\/*.page.vue`
-   */
+  /** 基础路由前缀 */
+  baseRoute?: string
+  /** 文件匹配模式 */
   filePattern?: string
 }
 
-export interface PageResolver {
-  resolveModuleIds: () => string[]
-  resolveExtensions: () => string[]
-  resolveRoutes: (ctx: PageContext) => Awaitable<string>
-  getComputedRoutes: (ctx: PageContext) => Awaitable<VueRoute[] | ReactRoute[] | SolidRoute[]>
-  stringify?: {
-    dynamicImport?: (importPath: string) => string
-    component?: (importName: string) => string
-    final?: (code: string) => string
-  }
-  // hmr?: {
-  //   added?: (ctx: PageContext, path: string) => Awaitable<void>
-  //   removed?: (ctx: PageContext, path: string) => Awaitable<void>
-  //   changed?: (ctx: PageContext, path: string) => Awaitable<void>
-  // }
+/**
+ * 用户配置选项
+ */
+export interface UserOptions {
+  /** 路由解析器类型（必填） */
+  resolver: Resolver
+  /** 页面目录配置，可以是字符串或 PageDir 数组，默认 'src/pages' */
+  dirs?: string | PageDir[]
+  /** 文件扩展名，默认 Vue: ['vue', 'ts', 'js'] / React: ['tsx', 'jsx', 'ts', 'js'] */
+  extensions?: string[]
+  /** 排除的文件模式 */
+  exclude?: string[]
+  /** 导入路径风格 */
+  importPath?: "absolute" | "relative"
+  /** 路径大小写敏感，默认 false */
+  caseSensitive?: boolean
+  /** 路由名称分隔符，默认 '-' */
+  routeNameSeparator?: string
+  /** 扩展路由配置的钩子函数 */
+  extendRoute?: (route: any, parent: any | undefined) => any | void
+  /** 路由生成后的钩子函数 */
+  onRoutesGenerated?: (routes: any[]) => Awaitable<any[] | void>
+  /** 客户端代码生成后的钩子函数 */
+  onClientGenerated?: (clientCode: string) => Awaitable<string | void>
 }
 
 /**
- * Plugin options.
+ * 解析后的配置选项
  */
-export interface Options {
-  /**
-   * Paths to the directory to search for page components.
-   * @default 'src/pages'
-   */
-  dirs?: string | (string | PageOptions)[]
-  /**
-   * Valid file extensions for page components.
-   * @default ['vue', 'js']
-   */
-  extensions?: string[]
-  /**
-   * List of path globs to exclude when resolving pages.
-   */
-  exclude?: string[]
-  /**
-   * Import routes directly or as async components
-   * @default 'root index file => "sync", others => "async"'
-   */
-  importMode?: ImportMode | ImportModeResolver
-  /**
-   * Import page components from absolute or relative paths.
-   * @default 'relative'
-   */
-  importPath?: 'absolute' | 'relative'
-  /**
-   * Sync load top level index file
-   * @default true
-   * @deprecated use `importMode` instead
-   */
-  syncIndex?: boolean
-  /**
-   * Use Nuxt.js style route naming
-   * @default false
-   * @deprecated use `routeStyle` instead
-   */
-  nuxtStyle?: boolean
-  /**
-   * Routing style
-   * @default false
-   */
-  routeStyle?: 'next' | 'nuxt' | 'remix'
-  /**
-   * Separator for generated route names.
-   * @default -
-   */
-  routeNameSeparator?: string
-  /**
-   * Case for route paths
-   * @default false
-   */
-  caseSensitive?: boolean
-  /**
-   * Set the default route block parser, or use `<route lang=xxx>` in SFC route block
-   * @default 'json5'
-   */
-  routeBlockLang?: 'json5' | 'json' | 'yaml' | 'yml'
-  /**
-   * Module id for routes import
-   * @default '~pages'
-   */
-  moduleId?: string
-  /**
-   * Generate React Route
-   * @default 'auto detect'
-   */
-  resolver: InternalPageResolvers | PageResolver
-  /**
-   * Extend route records
-   */
+export interface ResolvedOptions {
+  /** 项目根目录 */
+  root: string
+  /** 路由解析器类型 */
+  resolver: Resolver
+  /** 页面目录配置数组 */
+  dirs: PageDir[]
+  /** 文件扩展名数组 */
+  extensions: string[]
+  /** 排除的文件模式数组 */
+  exclude: string[]
+  /** 导入路径风格 */
+  importPath: "absolute" | "relative"
+  /** 路径大小写敏感 */
+  caseSensitive: boolean
+  /** 路由名称分隔符 */
+  routeNameSeparator: string
+  /** 扩展路由配置的钩子函数 */
   extendRoute?: (route: any, parent: any | undefined) => any | void
-  /**
-   * Custom generated routes
-   */
+  /** 路由生成后的钩子函数 */
   onRoutesGenerated?: (routes: any[]) => Awaitable<any[] | void>
-  /**
-   * Custom generated client code
-   */
+  /** 客户端代码生成后的钩子函数 */
   onClientGenerated?: (clientCode: string) => Awaitable<string | void>
-
-  /**
-   * Paths to the directory to search for page components.
-   * @deprecated use `dirs` instead
-   */
-  pagesDir?: string | (string | PageOptions)[]
-  /**
-   * Replace '[]' to '_' in bundle filename
-   * @deprecated issue #122
-   */
-  replaceSquareBrackets?: never
-  /**
-   * @name watcher
-   */
-  watcher?: boolean
 }
 
-export type UserOptions = Options
-
-export interface ResolvedOptions extends Omit<Options, 'pagesDir' | 'replaceSquareBrackets' | 'nuxtStyle' | 'syncIndex' | 'moduleId'> {
-  /**
-   * Resolves to the `root` value from config.
-   * @default config.root
-   */
-  root: string
-  /**
-   * Resolved page dirs
-   */
-  dirs: PageOptions[]
-  /**
-   * Resolved page resolver
-   */
-  resolver: PageResolver
-  /**
-   * RegExp to match extensions
-   */
-  extensionsRE: RegExp
-  /**
-   * Module IDs for routes import
-   */
-  moduleIds: string[]
+/**
+ * 路由元数据
+ */
+export interface RouteMeta {
+  /** 文件路径 */
+  path: string
+  /** 路由路径 */
+  routePath: string
+  /** 路由名称 */
+  name: string
+  /** 组件路径 */
+  component: string
+  /** 子路由 */
+  children?: RouteMeta[]
 }

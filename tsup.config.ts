@@ -1,16 +1,18 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup"
 
 export default defineConfig({
-  entryPoints: ['src/*.ts'],
+  entryPoints: [
+    "src/index.ts",
+    "src/vite.ts",
+    "src/rspack.ts",
+  ],
   format: [
-    'cjs',
-    'esm',
+    "cjs",
+    "esm",
   ],
   dts: true,
   clean: true,
   sourcemap: false,
-  splitting: true,
-  onSuccess: 'npm run build:fix',
-  ignoreWatch: ['examples'],
-  external: ['unplugin', 'chokidar', '@antfu/utils', '@nuxt/schema', 'dequal', 'picocolors', '@nuxt/kit'],
+  splitting: false,
+  external: ["unplugin", "@antfu/utils"],
 })

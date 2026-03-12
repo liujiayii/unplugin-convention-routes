@@ -10,110 +10,131 @@
 
 <p align="center">unplugin-convention-routes</p>
 
-- 🔥 基于文件系统的约定式路由解决方案。
-- 🔥 基于`unplugin`对`vite-plugin-pages`进行了移植，能同时支持`vite`、`webpack`、`rsbuild`、`farm`等构建框架，并同时支持`react`、`vue`、`solid`三大框架。
-- ⚠️ 尚在开发中，可能有的框架无法正常使用，个人测试了`vue`+`vite`、`vue`+`rsbuild`、`react`+`vite`、`react`+`rsbuild`可用。
+🔥 基于文件系统的约定式路由解决方案。
 
-## 已知问题
-- 新增路由无法热更，需要手动重启项目（可能是vite对js文件请求进行了缓存？）
-- 配置文件可能有ts错误提示（比较影响体验，需要优先解决）
-- 测试用例无法通过（影响GitHub观感，影响renovate automerge）
+🔥 基于 `unplugin` 开发，支持 `Vite` 和 `Rspack` 构建工具，同时支持 `React` 和 `Vue` 框架。
+
+⚡️ 使用 `import.meta.glob` (Vite) 和 `import.meta.webpackContext` (Rspack) 实现零运行时依赖，自动支持 HMR。
 
 ---
 
-## 📦 安装 & 使用
+## 📦 安装
 
 ```bash
 pnpm i unplugin-convention-routes
 ```
 
-<details>
-<summary>Vite</summary><br>
+## 🚀 使用
+
+### Vite
 
 ```ts
 // vite.config.ts
-import Routes from 'unplugin-convention-routes/vite'
+import Pages from "unplugin-convention-routes/vite"
 
 export default defineConfig({
   plugins: [
-    Routes({ /* options */ }),
+    Pages({ resolver: "vue" }), // 或 'react'
   ],
 })
 ```
-</details>
-<details>
-<summary>Rsbuild</summary><br>
+
+### Rspack
 
 ```ts
 // rsbuild.config.ts
-import Routes from 'unplugin-convention-routes/rspack'
+import Pages from "unplugin-convention-routes/rspack"
 
 export default defineConfig({
   tools: {
     rspack: {
       plugins: [
-        Pages({ /* options */ }),
+        Pages({ resolver: "vue" }), // 或 'react'
       ],
     },
   },
 })
 ```
-</details>
-<details>
-<summary>React</summary><br>
+
+## 📖 路由约定
+
+### 文件命名规则
+
+| 文件名 | 路由路径 |
+|--------|----------|
+| `index.vue` | `/` |
+| `about.vue` | `/about` |
+| `about/index.vue` | `/about` |
+| `blog/[id].vue` | `/blog/:id` |
+| `blog/[...all].vue` | `/blog/:all(.*)*` |
+
+### Vue 使用
 
 ```ts
 // env.d.ts
-/// <reference types="unplugin-convention-routes/client-react.d.ts" />
+/// <reference types="unplugin-convention-routes/client-vue" />
 ```
-```tsx
-import routes from '~unplugin-convention-routes/react'
-import { StrictMode, Suspense } from 'react'
-import { createRoot } from 'react-dom/client'
-import {
-  BrowserRouter,
-  useRoutes,
-} from 'react-router-dom'
-
-function App() {
-  return (
-    <Suspense fallback={<p>Loading...</p>}>
-      {useRoutes(routes)}
-    </Suspense>
-  )
-}
-
-const app = createRoot(document.getElementById('root')!)
-
-app.render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>,
-)
-```
-</details>
-<details>
-<summary>Vue</summary><br/>
 
 ```ts
-// env.d.ts
-/// <reference types="unplugin-convention-routes/client-vue.d.ts" />
-```
-```ts
-import routes from '~unplugin-convention-routes/vue'
-import { createRouter } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router"
+// main.ts
+import routes from "~pages"
 
 const router = createRouter({
-  // ...
+  history: createWebHistory(),
   routes,
 })
 ```
-</details>
+
+### React 使用
+
+```ts
+// env.d.ts
+/// <reference types="unplugin-convention-routes/client-react" />
+```
+
+```tsx
+import { BrowserRouter, useRoutes } from "react-router-dom"
+// main.tsx
+import routes from "~react-pages"
+
+function App() {
+  return useRoutes(routes)
+}
+
+createRoot(document.getElementById("root")!).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+)
+```
+
+## ⚙️ 配置选项
+
+```ts
+interface UserOptions {
+  resolver: "vue" | "react"
+  dirs?: string | PageDir[]
+  extensions?: string[]
+  caseSensitive?: boolean
+  routeNameSeparator?: string
+}
+```
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `resolver` | 框架类型 | 必填 |
+| `dirs` | 页面目录 | `'src/pages'` |
+| `extensions` | 文件扩展名 | Vue: `['vue', 'ts', 'js']` / React: `['tsx', 'jsx', 'ts', 'js']` |
+| `caseSensitive` | 路径大小写敏感 | `false` |
+| `routeNameSeparator` | 路由名称分隔符 | `'-'` |
 
 ## 🔨 示例项目
-- https://github.com/liujiayii/unplugin-convention-routes/tree/main/examples
+
+- [Vue + Vite](./examples/vue)
+- [React + Vite](./examples/react)
+- [Vue + Rspack](./examples/vue-rsbuild)
+- [React + Rspack](./examples/react-rsbuild)
 
 ## 友情链接
 

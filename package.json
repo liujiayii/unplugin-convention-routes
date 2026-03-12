@@ -18,8 +18,7 @@
     "vue-router",
     "react",
     "react-router",
-    "solid-js",
-    "@solidjs/router",
+    "rspack",
     "file-system-based",
     "routing"
   ],
@@ -28,10 +27,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./astro": {
-      "import": "./dist/astro.js",
-      "require": "./dist/astro.cjs"
-    },
     "./rspack": {
       "import": "./dist/rspack.js",
       "require": "./dist/rspack.cjs"
@@ -39,32 +34,7 @@
     "./vite": {
       "import": "./dist/vite.js",
       "require": "./dist/vite.cjs"
-    },
-    "./webpack": {
-      "import": "./dist/webpack.js",
-      "require": "./dist/webpack.cjs"
-    },
-    "./rollup": {
-      "import": "./dist/rollup.js",
-      "require": "./dist/rollup.cjs"
-    },
-    "./esbuild": {
-      "import": "./dist/esbuild.js",
-      "require": "./dist/esbuild.cjs"
-    },
-    "./nuxt": {
-      "import": "./dist/nuxt.js",
-      "require": "./dist/nuxt.cjs"
-    },
-    "./farm": {
-      "import": "./dist/farm.js",
-      "require": "./dist/farm.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
-    },
-    "./*": "./*"
+    }
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -72,10 +42,8 @@
   "files": [
     "LICENSE",
     "client-react.d.ts",
-    "client-solid.d.ts",
     "client-vue.d.ts",
-    "dist",
-    "virtual-package"
+    "dist"
   ],
   "scripts": {
     "dev": "tsup --watch src",
@@ -84,41 +52,17 @@
     "play:react": "pnpm --filter react dev",
     "prepublishOnly": "npm run build",
     "release": "bumpp --commit --tag --push",
-    "publish:ci": "esno scripts/publish.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build:fix": "esno scripts/postbuild.ts",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@vue/compiler-sfc": "^2.7.0 || ^3.0.0",
     "vite": "^2.0.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0 || ^6.0.0"
   },
   "peerDependenciesMeta": {
-    "@farmfe/core": {
-      "optional": true
-    },
-    "@nuxt/kit": {
-      "optional": true
-    },
-    "@nuxt/schema": {
-      "optional": true
-    },
-    "@solidjs/router": {
-      "optional": true
-    },
-    "@vue/compiler-sfc": {
-      "optional": true
-    },
-    "esbuild": {
-      "optional": true
-    },
     "react-router": {
-      "optional": true
-    },
-    "rollup": {
       "optional": true
     },
     "vite": {
@@ -126,52 +70,27 @@
     },
     "vue-router": {
       "optional": true
-    },
-    "webpack": {
-      "optional": true
     }
   },
   "dependencies": {
-    "@types/debug": "^4.1.12",
-    "chokidar": "^4.0.3",
-    "debug": "^4.4.0",
-    "dequal": "^2.0.3",
-    "extract-comments": "^1.1.0",
-    "fast-glob": "^3.3.3",
-    "json5": "^2.2.3",
-    "local-pkg": "^1.1.1",
-    "picocolors": "^1.1.1",
-    "unplugin": "^2.2.2",
-    "yaml": "^2.7.1"
+    "unplugin": "^3.0.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.8.0",
-    "@antfu/utils": "^9.2.0",
-    "@nuxt/kit": "^3.16.2",
-    "@nuxt/schema": "^3.16.2",
-    "@solidjs/router": "^0.15.3",
-    "@types/glob-to-regexp": "^0.4.4",
-    "@types/node": "^22.14.0",
-    "@vitest/ui": "^3.1.1",
-    "@vue/compiler-sfc": "^3.5.13",
-    "bumpp": "^10.1.0",
-    "chalk": "^5.4.1",
-    "eslint": "^9.23.0",
+    "@antfu/eslint-config": "^7.7.0",
+    "@antfu/utils": "^9.3.0",
+    "@types/node": "^25.4.0",
+    "@vitest/ui": "^4.0.18",
+    "bumpp": "^10.4.1",
+    "eslint": "^10.0.3",
     "esno": "^4.8.0",
-    "fast-glob": "^3.3.3",
-    "nodemon": "^3.1.9",
-    "playwright": "^1.51.1",
-    "react": "^19.1.0",
-    "react-router": "^7.4.1",
-    "rollup": "^4.39.0",
-    "solid-js": "^1.9.5",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.4",
-    "vitest": "^3.1.1",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "webpack": "^5.98.0"
+    "react": "^19.2.4",
+    "react-router": "^7.13.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18",
+    "vue": "^3.5.30",
+    "vue-router": "^5.0.3"
   },
   "pnpm": {
     "peerDependencyRules": {

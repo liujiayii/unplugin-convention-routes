@@ -8,13 +8,13 @@
     "preview": "rsbuild preview"
   },
   "dependencies": {
-    "vue": "^3.5.12"
+    "vue": "^3.5.30"
   },
   "devDependencies": {
-    "@rsbuild/core": "^1.0.13",
-    "@rsbuild/plugin-vue": "^1.0.1",
-    "unplugin-convention-routes": "workspace:*",
-    "typescript": "^5.6.3"
+    "@rsbuild/core": "^1.7.3",
+    "@rsbuild/plugin-vue": "^1.2.7",
+    "typescript": "^5.9.3",
+    "unplugin-convention-routes": "workspace:*"
   },
   "packageManager": "pnpm@9.12.1"
 }
