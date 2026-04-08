@@ -17,10 +17,10 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-router-config": "^5.0.11",
     "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "nodemon": "^3.1.14",
     "typescript": "^5.9.3",
     "unplugin-convention-routes": "workspace:*",
-    "vite": "^7.3.1"
+    "vite": "^8.0.7"
   }
 }
