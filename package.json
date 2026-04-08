@@ -34,6 +34,12 @@
     "./vite": {
       "import": "./dist/vite.mjs",
       "require": "./dist/vite.cjs"
+    },
+    "./client-react": {
+      "types": "./client-react.d.ts"
+    },
+    "./client-vue": {
+      "types": "./client-vue.d.ts"
     }
   },
   "main": "dist/index.cjs",
