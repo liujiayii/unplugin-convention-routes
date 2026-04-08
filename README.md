@@ -396,10 +396,10 @@ Pages({
 
 ## 🔨 示例项目
 
-- [Vue + Vite](./examples/vue-vite)
-- [React + Vite](./examples/react-vite)
-- [Vue + Rspack](./examples/vue-rsbuild)
-- [React + Rspack](./examples/react-rsbuild)
+- [Vite + Vue](./examples/vite-vue)
+- [Vite + React](./examples/vite-react)
+- [rsbuild + Vue](./examples/rsbuild-vue)
+- [rsbuild + React](./examples/rsbuild-react)
 
 ## 友情链接
 
