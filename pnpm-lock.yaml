@@ -61,7 +61,7 @@ importers:
         specifier: ^5.0.3
         version: 5.0.3(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3))
 
-  examples/react-rsbuild:
+  examples/rsbuild-react:
     dependencies:
       react:
         specifier: ^19.2.4
@@ -95,7 +95,29 @@ importers:
         specifier: workspace:*
         version: link:../..
 
-  examples/react-vite:
+  examples/rsbuild-vue:
+    dependencies:
+      vue:
+        specifier: ^3.5.30
+        version: 3.5.30(typescript@5.9.3)
+      vue-router:
+        specifier: ^5.0.3
+        version: 5.0.3(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3))
+    devDependencies:
+      '@rsbuild/core':
+        specifier: ^1.7.3
+        version: 1.7.3
+      '@rsbuild/plugin-vue':
+        specifier: ^1.2.7
+        version: 1.2.7(@rsbuild/core@1.7.3)(@rspack/core@1.7.8(@swc/helpers@0.5.19))(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3))
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      unplugin-convention-routes:
+        specifier: workspace:*
+        version: link:../..
+
+  examples/vite-react:
     dependencies:
       react:
         specifier: ^19.2.4
@@ -135,29 +157,7 @@ importers:
         specifier: ^8.0.7
         version: 8.0.7(@types/node@25.4.0)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  examples/vue-rsbuild:
-    dependencies:
-      vue:
-        specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
-      vue-router:
-        specifier: ^5.0.3
-        version: 5.0.3(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3))
-    devDependencies:
-      '@rsbuild/core':
-        specifier: ^1.7.3
-        version: 1.7.3
-      '@rsbuild/plugin-vue':
-        specifier: ^1.2.7
-        version: 1.2.7(@rsbuild/core@1.7.3)(@rspack/core@1.7.8(@swc/helpers@0.5.19))(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3))
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      unplugin-convention-routes:
-        specifier: workspace:*
-        version: link:../..
-
-  examples/vue-vite:
+  examples/vite-vue:
     dependencies:
       vue:
         specifier: ^3.5.30
@@ -3491,8 +3491,8 @@ snapshots:
 
   '@napi-rs/wasm-runtime@1.0.7':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
     optional: true
 
@@ -3632,7 +3632,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.8
       estree-walker: 2.0.2
-      picomatch: 4.0.3
+      picomatch: 4.0.4
     optionalDependencies:
       rollup: 4.59.0
 

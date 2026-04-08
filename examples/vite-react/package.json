@@ -1,5 +1,5 @@
 {
-  "name": "react",
+  "name": "vite-react",
   "type": "module",
   "private": true,
   "scripts": {
