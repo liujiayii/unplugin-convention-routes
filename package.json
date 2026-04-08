@@ -1,7 +1,7 @@
 {
   "name": "unplugin-convention-routes",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "packageManager": "pnpm@10.33.0",
   "description": "File system base router plugin for unplugin",
   "author": "liujiayii@foxmail.com",
@@ -34,6 +34,12 @@
     "./vite": {
       "import": "./dist/vite.mjs",
       "require": "./dist/vite.cjs"
+    },
+    "./client-react": {
+      "types": "./client-react.d.ts"
+    },
+    "./client-vue": {
+      "types": "./client-vue.d.ts"
     }
   },
   "main": "dist/index.cjs",
