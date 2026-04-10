@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 const Component: FC = () => {
   const { id } = useParams()
