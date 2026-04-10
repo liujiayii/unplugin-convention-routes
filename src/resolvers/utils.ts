@@ -39,6 +39,12 @@ const PLACEHOLDER_QUESTION_RE = /<<<QUESTION>>>/g
 const BACKSLASH_RE = /\\/g
 
 /**
+ * 扩展名点前缀匹配正则表达式
+ * 移到模块作用域以避免每次调用重新编译
+ */
+const EXTENSION_DOT_PREFIX_RE = /^\./
+
+/**
  * 转义正则表达式中的特殊字符
  * 包括 Windows 路径中的特殊字符（如 / 和 :）
  * @param str - 待转义的字符串
@@ -114,4 +120,73 @@ export function createExcludePatterns(exclude: string[], varName: string = "excl
  */
 export function generateExcludeCheck(pathVarName: string = "path", patternsVarName: string = "excludePatterns"): string {
   return `if (${patternsVarName}.some(pattern => pattern.test(${pathVarName}))) return`
+}
+
+/**
+ * 生成路由路径转换代码
+ * 用于将文件路径转换为路由路径
+ * @param pathVar - 路径变量名（如 'path' 或 'key'）
+ * @param escapedDir - 转义后的目录路径
+ * @param basePath - 基础路径
+ * @param extensions - 文件扩展名列表
+ * @param catchAllFormat - catch-all 格式，Vue 用 '(.*)*'，React 用 '/*'
+ * @param caseSensitive - 是否区分大小写
+ * @returns 路径转换代码字符串
+ */
+export function generateRoutePathTransformCode(
+  pathVar: string,
+  escapedDir: string,
+  basePath: string,
+  extensions: string[],
+  catchAllFormat: string,
+  caseSensitive: boolean,
+): string {
+  const extPattern = extensions.map(e => e.replace(EXTENSION_DOT_PREFIX_RE, "")).join("|")
+  const caseSuffix = caseSensitive ? "" : ".toLowerCase()"
+
+  return `let routePath = ${pathVar}
+    .replace(/${escapedDir}/, '')
+    .replace(/^\\.\\//, '')
+    .replace(/^\\//, '')
+    .replace(/\\.(${extPattern})$/, '')
+    .replace(/\\/index$/, '')
+    .replace(/^index$/, '')
+    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
+      isCatchAll ? \`:\${name}${catchAllFormat}\` : \`:\${name}\`
+    )
+    .replace(/\\$(.+)/g, ':$1')
+    .replace(/\\$$$/, '${catchAllFormat}')
+    ${caseSuffix}
+
+  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'`
+}
+
+/**
+ * 生成路由名称转换代码
+ * 用于将文件路径转换为路由名称
+ * @param pathVar - 路径变量名（如 'path' 或 'key'）
+ * @param escapedDir - 转义后的目录路径
+ * @param extensions - 文件扩展名列表
+ * @param routeNameSeparator - 路由名称分隔符
+ * @returns 路由名称转换代码字符串
+ */
+export function generateRouteNameTransformCode(
+  pathVar: string,
+  escapedDir: string,
+  extensions: string[],
+  routeNameSeparator: string,
+): string {
+  const extPattern = extensions.map(e => e.replace(EXTENSION_DOT_PREFIX_RE, "")).join("|")
+
+  return `const name = ${pathVar}
+    .replace(/${escapedDir}/, '')
+    .replace(/^\\.\\//, '')
+    .replace(/^\\//, '')
+    .replace(/\\.(${extPattern})$/, '')
+    .replace(/\\/index$/, '')
+    .replace(/^index$/, '')
+    .replace(/\\//g, '${routeNameSeparator}')
+    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, '$2')
+    .replace(/\\$(.+)/g, '$1')
+    .replace(/^${routeNameSeparator}/, '') || 'index'`
 }

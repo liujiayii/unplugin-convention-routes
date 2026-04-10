@@ -1,6 +1,6 @@
 import type { BuildTool, ResolvedOptions } from "../core/types"
 import { getGlobPattern, getWebpackContextPattern } from "../core/path"
-import { createExcludePatterns, escapeRegExp, generateExcludeCheck } from "./utils"
+import { createExcludePatterns, escapeRegExp, generateExcludeCheck, generateRoutePathTransformCode } from "./utils"
 
 /**
  * React 路由接口定义
@@ -28,31 +28,24 @@ export function generateReactViteCode(options: ResolvedOptions): string {
     const globPattern = getGlobPattern(dir, options.extensions)
     const contextVar = `__pages_${contextBlocks.length}__`
     const basePath = dir.baseRoute ? `/${dir.baseRoute}` : ""
-    // 转义路径用于正则表达式
     const escapedDir = escapeRegExp(dir.dir)
 
-    // 生成路由扫描和处理代码
+    const routePathCode = generateRoutePathTransformCode(
+      "path",
+      escapedDir,
+      basePath,
+      options.extensions,
+      "/*",
+      options.caseSensitive,
+    )
+
     contextBlocks.push(`
 const ${contextVar} = import.meta.glob('${globPattern}')
 Object.entries(${contextVar}).forEach(([path, moduleFn]) => {
-  // 忽略 __xxx 格式的文件/目录（Remix 风格）
   const pathSegments = path.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = path
-    .replace(/${escapedDir}/, '')
-    .replace(/^\\//, '') // 移除开头的 /
-    .replace(/\\.(tsx|jsx|ts|js)$/, '')
-    .replace(/\\/index$/, '') // 移除结尾的 /index
-    .replace(/^index$/, '') // 移除单独的 index
-    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
-      isCatchAll ? \`:\${name}/*\` : \`:\${name}\`
-    )
-    .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
-    .replace(/\\$$/, '/*') // Remix 风格: $ -> catch-all (React Router 格式)
-    ${options.caseSensitive ? "" : ".toLowerCase()"}
-
-  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  ${routePathCode}
 
   routes.push({
     path: routePath,
@@ -87,43 +80,30 @@ export function generateReactRspackCode(options: ResolvedOptions): string {
     const pattern = getWebpackContextPattern(dir, options.extensions, options.root)
     const contextVar = `__pages_${contextBlocks.length}__`
     const basePath = dir.baseRoute ? `/${dir.baseRoute}` : ""
-    // 转义路径用于正则表达式
     const escapedDir = escapeRegExp(pattern.path)
 
-    // 生成路由扫描和处理代码
-    // 注意：Rspack 的 webpackContext 使用绝对路径
-    // webpackContext 返回的是 CommonJS 模块，需要转换为 ES Module 格式
+    const routePathCode = generateRoutePathTransformCode(
+      "key",
+      escapedDir,
+      basePath,
+      options.extensions,
+      "/*",
+      options.caseSensitive,
+    )
+
     contextBlocks.push(`
 const ${contextVar} = import.meta.webpackContext('${pattern.path}', {
   recursive: ${pattern.recursive},
   regExp: /${pattern.regExp}$/
 })
 ${contextVar}.keys().forEach((key) => {
-  // 忽略 __xxx 格式的文件/目录（Remix 风格）
   const pathSegments = key.split('/')
   const shouldIgnore = pathSegments.some(seg => /^__.*__$/.test(seg))
   if (shouldIgnore) return
-${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  let routePath = key
-    .replace(/${escapedDir}/, '')
-    .replace(/^\\.\\//, '') // 移除开头的 ./
-    .replace(/^\\//, '') // 移除开头的 /
-    .replace(/\\.(tsx|jsx|ts|js)$/, '')
-    .replace(/\\/index$/, '') // 移除结尾的 /index
-    .replace(/^index$/, '') // 移除单独的 index
-    .replace(/\\[(\\.\\.\\.)?(.+?)\\]/g, (_, isCatchAll, name) =>
-      isCatchAll ? \`:\${name}/*\` : \`:\${name}\`
-    )
-    .replace(/\\$(.+)/g, ':$1') // Remix 风格: $id -> :id
-    .replace(/\\$$/, '/*') // Remix 风格: $ -> catch-all (React Router 格式)
-    ${options.caseSensitive ? "" : ".toLowerCase()"}
+${excludeCheckCode ? `  ${excludeCheckCode}\n` : ""}  ${routePathCode}
 
-  routePath = '${basePath}' + (routePath ? '/' + routePath : '') || '/'
-
-  // webpackContext 返回 CommonJS 模块，需要转换为 ES Module 格式
-  // React.lazy 需要一个返回 Promise 的函数，Promise resolve 一个包含 default 的对象
   const loadModule = async () => {
     const module = await ${contextVar}(key)
-    // 确保返回正确的 ES Module 格式
     return { default: module.default || module }
   }
 
