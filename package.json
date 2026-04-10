@@ -86,7 +86,7 @@
     "@antfu/eslint-config": "^8.1.1",
     "@types/node": "^25.5.2",
     "@vitest/ui": "^4.1.4",
-    "bumpp": "^10.4.1",
+    "bumpp": "^11.0.1",
     "eslint": "^10.2.0",
     "esno": "^4.8.0",
     "playwright": "^1.59.1",
