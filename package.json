@@ -87,7 +87,7 @@
     "@types/node": "^25.6.0",
     "@vitest/ui": "^4.1.4",
     "bumpp": "^11.0.1",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "esno": "^4.8.0",
     "playwright": "^1.59.1",
     "react": "^19.2.5",
