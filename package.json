@@ -94,7 +94,7 @@
     "react-router": "^7.15.0",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.12",
+    "vite": "^8.0.13",
     "vitest": "^4.1.6",
     "vue": "^3.5.34",
     "vue-router": "^5.0.7"
