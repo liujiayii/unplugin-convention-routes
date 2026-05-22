@@ -20,6 +20,10 @@ const VIRTUAL_MODULE_IDS = {
   ],
 }
 
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+const createExactIdFilter = (ids: string[]): RegExp => new RegExp(`^(?:${ids.map(escapeRegExp).join("|")})$`)
+
 /**
  * unplugin 工厂函数
  * 创建约定式路由插件的核心实现
@@ -36,6 +40,7 @@ export const unpluginFactory: UnpluginFactory<UserOptions> = (userOptions, { fra
 
   // 获取当前 resolver 对应的虚拟模块 ID 列表
   const virtualIds = VIRTUAL_MODULE_IDS[options.resolver]
+  const virtualIdFilter = createExactIdFilter(virtualIds)
 
   return {
     name: "unplugin-convention-routes",
@@ -46,11 +51,16 @@ export const unpluginFactory: UnpluginFactory<UserOptions> = (userOptions, { fra
      * @param id - 模块 ID
      * @returns 解析后的模块 ID 或 null
      */
-    resolveId(id) {
-      if (virtualIds.includes(id)) {
-        return virtualIds[0]
-      }
-      return null
+    resolveId: {
+      filter: {
+        id: virtualIdFilter,
+      },
+      handler(id) {
+        if (virtualIds.includes(id)) {
+          return virtualIds[0]
+        }
+        return null
+      },
     },
 
     /**
@@ -59,11 +69,16 @@ export const unpluginFactory: UnpluginFactory<UserOptions> = (userOptions, { fra
      * @param id - 模块 ID
      * @returns 生成的代码或 null
      */
-    load(id) {
-      if (id === virtualIds[0]) {
-        return generateRoutes(options, buildTool)
-      }
-      return null
+    load: {
+      filter: {
+        id: virtualIdFilter,
+      },
+      handler(id) {
+        if (id === virtualIds[0]) {
+          return generateRoutes(options, buildTool)
+        }
+        return null
+      },
     },
   }
 }
