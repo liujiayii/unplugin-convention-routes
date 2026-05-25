@@ -4,3 +4,7 @@ trustPolicy: no-downgrade
 
 packages:
   - examples/*
+
+allowBuilds:
+  core-js: true
+  esbuild: true
