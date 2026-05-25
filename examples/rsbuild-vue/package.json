@@ -1,7 +1,6 @@
 {
   "name": "rsbuild-vue",
   "private": true,
-  "version": "1.0.0",
   "scripts": {
     "dev": "rsbuild dev",
     "build": "rsbuild build",
@@ -16,6 +15,5 @@
     "@rsbuild/plugin-vue": "^1.2.7",
     "typescript": "^5.9.3",
     "unplugin-convention-routes": "workspace:*"
-  },
-  "packageManager": "pnpm@9.12.1"
+  }
 }

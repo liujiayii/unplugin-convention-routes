@@ -15,8 +15,6 @@
     "@vitejs/plugin-vue": "^6.0.5",
     "typescript": "^5.9.3",
     "unplugin-convention-routes": "workspace:*",
-    "vite": "^8.0.7",
-    "vite-plugin-inspect": "^11.3.3",
-    "vite-plugin-vue-markdown": "^0.23.8"
+    "vite": "^8.0.7"
   }
 }

@@ -1,10 +1,10 @@
 import type { FC } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 const index: FC = () => {
   return (
     <div>
-      <p>index.vue</p>
+      <p>index.tsx</p>
       <Link to="/blog">
         blog
       </Link>
