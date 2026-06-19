@@ -40,8 +40,8 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7
       react-router:
-        specifier: ^7.17.0
-        version: 7.17.0(react-dom@19.2.4(react@19.2.7))(react@19.2.7)
+        specifier: ^7.18.0
+        version: 7.18.0(react-dom@19.2.4(react@19.2.7))(react@19.2.7)
       tsdown:
         specifier: ^0.22.3
         version: 0.22.3(tsx@4.21.0)(typescript@6.0.3)
@@ -2506,8 +2506,8 @@ packages:
       react-dom:
         optional: true
 
-  react-router@7.17.0:
-    resolution: {integrity: sha512-FDELK7rTMlCHO5+reyXsPlmfr7N1F91lPHsWYfMEGQm/KQ+F4JFM8jGoeQDmDvdTs93Fw9aSilH+uKRb4/jXvQ==}
+  react-router@7.18.0:
+    resolution: {integrity: sha512-pTTGt8J+ji1NOmYnjzT+bAJy/1zD+Jp4ziO6cL7T3ZLvXKtusO7BpFqlRXitqpcPVqllsIXFHRMt+2/k3Xn6HQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -5508,7 +5508,7 @@ snapshots:
     optionalDependencies:
       react-dom: 19.2.4(react@19.2.4)
 
-  react-router@7.17.0(react-dom@19.2.4(react@19.2.7))(react@19.2.7):
+  react-router@7.18.0(react-dom@19.2.4(react@19.2.7))(react@19.2.7):
     dependencies:
       cookie: 1.1.1
       react: 19.2.7
