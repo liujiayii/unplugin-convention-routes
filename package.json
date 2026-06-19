@@ -2,7 +2,7 @@
   "name": "unplugin-convention-routes",
   "type": "module",
   "version": "0.1.0",
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.8.0",
   "description": "File system base router plugin for unplugin",
   "author": "liujiayii@foxmail.com",
   "license": "MIT",
