@@ -42,5 +42,6 @@
   "references.preferredLocation": "peek",
   "cSpell.words": [
     "unplugin"
-  ]
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

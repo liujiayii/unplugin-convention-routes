@@ -4,6 +4,7 @@ import type { BuildTool, UserOptions } from "./core/types"
 import { createUnplugin } from "unplugin"
 import { resolveOptions } from "./core/options"
 import { generateRoutes } from "./resolvers"
+import { createExactIdFilter } from "./resolvers/utils"
 
 /**
  * 虚拟模块 ID 映射表
@@ -19,10 +20,6 @@ const VIRTUAL_MODULE_IDS = {
     "~react-pages", // 兼容旧版 API
   ],
 }
-
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-
-const createExactIdFilter = (ids: string[]): RegExp => new RegExp(`^(?:${ids.map(escapeRegExp).join("|")})$`)
 
 /**
  * unplugin 工厂函数

@@ -55,6 +55,16 @@ export function escapeRegExp(str: string): string {
 }
 
 /**
+ * 创建精确匹配 ID 列表的正则表达式
+ * 用于 unplugin 的 filter，将多个虚拟模块 ID 编译为一个精确匹配的正则
+ * @param ids - ID 列表（如虚拟模块 ID）
+ * @returns 仅完整匹配其中任意一个 ID 的正则表达式
+ */
+export function createExactIdFilter(ids: string[]): RegExp {
+  return new RegExp(`^(?:${ids.map(escapeRegExp).join("|")})$`)
+}
+
+/**
  * 将 glob 模式转换为正则表达式字符串
  * 支持 **、*、? 等基本 glob 语法
  *
