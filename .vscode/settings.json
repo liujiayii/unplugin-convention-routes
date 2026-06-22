@@ -1,6 +1,11 @@
 {
   "eslint.enable": true,
   // Enable the ESlint flat config support
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "AGENTS.md": "CLAUDE.md",
+    "package.json": "package-lock.json, pnpm*, .eslint*, eslint*, .editorconfig, tsconfig.json, vitest.config.*, tsdown.config.*,"
+  },
   "eslint.useFlatConfig": true,
 
   // Disable the default formatter, use eslint instead
@@ -42,5 +47,6 @@
   "references.preferredLocation": "peek",
   "cSpell.words": [
     "unplugin"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
