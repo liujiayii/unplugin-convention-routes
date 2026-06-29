@@ -80,7 +80,7 @@
   },
   "dependencies": {
     "@antfu/utils": "^9.3.0",
-    "unplugin": "^3.0.0"
+    "unplugin": "^3.3.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^9.0.0",
