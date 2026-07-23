@@ -83,7 +83,7 @@
     "unplugin": "^3.3.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.1.0",
+    "@antfu/eslint-config": "^9.2.0",
     "@types/node": "^25.9.5",
     "@vitest/ui": "^4.1.10",
     "bumpp": "^11.1.0",
