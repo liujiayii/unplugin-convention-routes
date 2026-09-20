@@ -85,7 +85,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^9.3.0",
     "@types/node": "^25.9.8",
-    "@vitest/ui": "^5.0.0",
+    "@vitest/ui": "^5.0.1",
     "bumpp": "^12.3.0",
     "eslint": "^10.10.0",
     "esno": "^4.8.0",
@@ -95,7 +95,7 @@
     "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
     "vite": "^8.3.0",
-    "vitest": "^5.0.0",
+    "vitest": "^5.0.1",
     "vue": "^3.5.43",
     "vue-router": "^5.3.1"
   }
