@@ -89,7 +89,7 @@
     "bumpp": "^12.3.0",
     "eslint": "^10.12.0",
     "esno": "^4.8.0",
-    "playwright": "^1.63.0",
+    "playwright": "^1.64.0",
     "react": "^19.3.0",
     "react-router": "^8.4.0",
     "tsdown": "^0.23.0",
